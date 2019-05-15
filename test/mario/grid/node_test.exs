@@ -41,5 +41,17 @@ defmodule Mario.Grid.NodeTest do
       assert node = %Node{} = Node.unlink node, node_2
       assert 0 == Enum.count Map.get(node, :neighbours, [])
     end
+
+    test "any?/2 find a neighbour in a node" do
+      node_ = Node.init(1, 2)
+      |> Node.link(Node.init(2, 4))
+      |> Node.link(Node.init(3, 3))
+      |> Node.link(Node.init(4, 5))
+      |> Node.link(Node.init(4, 7))
+      |> Node.link(Node.init(1, 7))
+
+      assert 5 == Enum.count Map.get(node_, :neighbours, [])
+      assert true == Node.any? node_, Node.init(4, 5)
+    end
   end
 end

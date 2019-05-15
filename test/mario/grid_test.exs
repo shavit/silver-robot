@@ -1,5 +1,6 @@
 defmodule Mario.GridTest do
   use Mario.DataCase
+  import Mario.Fixture
 
   describe "grid" do
     alias Mario.Grid
@@ -58,6 +59,23 @@ defmodule Mario.GridTest do
       assert 0 == Map.get(grid.nodes, {n2.x, n2.y})
       |> Map.get(:neighbours)
       |> Enum.count
+    end
+
+    test "create_links/1 creates 4 or less links" do
+      w = 7
+      h = 11
+      grid_ = grid_fixture(w, h)
+      assert grid_.width == w
+      assert grid_.height == h
+      Enum.each(grid_.nodes, fn {_k, x} ->
+        cond do
+          is_nil x.north -> assert x.x == 0
+          is_nil x.east -> assert x.y == w-1
+          is_nil x.south -> assert x.x == h-1
+          is_nil x.west -> assert x.y == 0
+          true -> true
+        end
+      end)
     end
   end
 end

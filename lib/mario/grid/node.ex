@@ -38,4 +38,10 @@ defmodule Mario.Grid.Node do
     end)
   end
 
+  def any?(node, target) do
+    Enum.any?(node.neighbours, fn x ->
+      target.x == x.x and target.y == x.y
+    end)
+  end
+
 end
