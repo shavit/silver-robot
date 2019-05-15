@@ -22,7 +22,7 @@ defmodule Mario.Grid.Node do
 
   def init(x, y), do: %__MODULE__{x: x, y: y}
 
-  def link(from_node, to_node, bi = true) do
+  def link(from_node, to_node) do
     Map.update!(from_node, :neighbours, fn x ->
       x
       |> List.insert_at(-1, to_node)
@@ -30,7 +30,7 @@ defmodule Mario.Grid.Node do
     end)
   end
 
-  def unlink(from_node, to_node, bi = true) do
+  def unlink(from_node, to_node) do
     Map.update!(from_node, :neighbours, fn x ->
       x
       |> Enum.filter(&(&1 != to_node))
