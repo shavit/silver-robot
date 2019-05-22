@@ -1,5 +1,7 @@
 # Mario
 
+![Demo](https://github.com/shavit/silver-robot/raw/master/demo.gif)
+
 To start your Phoenix server:
 
   * Install dependencies with `mix deps.get`

@@ -1,8 +1,8 @@
 defmodule Mario.Grid.Node do
+  alias Mario.Grid.Position
 
   defstruct [
-    x: nil,
-    y: nil,
+    position: nil,
     north: nil,
     east: nil,
     south: nil,
@@ -11,37 +11,40 @@ defmodule Mario.Grid.Node do
   ]
 
   @type t :: %__MODULE__{
-    x:              integer() | nil,
-    y:              integer() | nil,
-    north:          t | nil,
-    east:           t | nil,
-    south:          t | nil,
-    west:           t | nil,
+    position:       Position.t | nil,
+    north:          Position.t | nil,
+    east:           Position.t | nil,
+    south:          Position.t | nil,
+    west:           Position.t | nil,
     neighbours:     list()
   }
 
-  def init(x, y), do: %__MODULE__{x: x, y: y}
+  def init(x, y), do: %__MODULE__{position: %Position{x: x, y: y}}
 
-  def link(from_node, to_node) do
-    Map.update!(from_node, :neighbours, fn x ->
+  def link(left, right) when not is_nil(right) do
+    Map.update!(left, :neighbours, fn x ->
       x
-      |> List.insert_at(-1, to_node)
+      |> List.insert_at(-1, right.position)
       |> Enum.uniq
     end)
   end
 
-  def unlink(from_node, to_node) do
-    Map.update!(from_node, :neighbours, fn x ->
+  def unlink(left, right) do
+    Map.update!(left, :neighbours, fn x ->
       x
-      |> Enum.filter(&(&1 != to_node))
+      |> Enum.filter(&(&1 != right.position))
       |> Enum.uniq
     end)
   end
 
-  def any?(node, target) do
-    Enum.any?(node.neighbours, fn x ->
-      target.x == x.x and target.y == x.y
+  @doc """
+  Check if the node on the left has a link to the node on the left
+  """
+  def any?(left, right) when not is_nil(right) do
+    Enum.any?(left.neighbours, fn x ->
+      Position.eq(x, right.position)
     end)
   end
+  def any?(_left, nil), do: false
 
 end

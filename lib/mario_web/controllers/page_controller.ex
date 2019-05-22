@@ -4,7 +4,7 @@ defmodule MarioWeb.PageController do
   def index(conn, _params) do
     # live_render(conn, MarioWeb.Live.BoardLive, session: %{})
     conn
-    |> assign(:grid, Mario.Grid.generate(12, 12))
+    |> assign(:grid, Mario.Grid.init(48, 54))
     |> render("index.html")
   end
 end

@@ -4,6 +4,12 @@ defmodule Mario.Grid.NodeTest do
   describe "grid" do
     alias Mario.Grid.Node
 
+    test "init/2 creates a node with a position" do
+      assert %Node{} = node = Node.init 4, 7
+      assert node.position.x == 4
+      assert node.position.y == 7
+    end
+
     test "link/2 creates a directional link between 2 nodes" do
       node_ = Node.init(1, 2)
       node_2 = Node.init(2, 3)
@@ -16,9 +22,9 @@ defmodule Mario.Grid.NodeTest do
       assert 0 == Enum.count Map.get(node_2, :neighbours, [])
       assert 1 == Enum.count Map.get(node, :neighbours, [])
 
-      assert neighbour = %Node{} = Map.get(node, :neighbours, []) |> List.first
-      assert node_2.x == neighbour.x
-      assert node_2.y == neighbour.y
+      assert position = Map.get(node, :neighbours, []) |> List.first
+      assert node_2.position.x == position.x
+      assert node_2.position.y == position.y
 
       assert 4 == node
       |> Node.link(Node.init(2, 4))

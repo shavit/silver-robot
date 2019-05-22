@@ -14,6 +14,8 @@ defmodule Mario.GridTest do
       assert (w * h) == Enum.count(grid_.nodes)
     end
 
+    alias Mario.Grid.Position
+
     test "link/3 create a bi-directional link between nodes" do
       assert grid_ = %Grid{} = Grid.generate(12, 11)
       n1 = Map.get(grid_.nodes, {9,10})
@@ -26,17 +28,17 @@ defmodule Mario.GridTest do
       grid = Grid.link grid_, n1, n2
       assert Enum.count(grid.nodes) == node_count
 
-      node2 = Map.get(grid.nodes, {n1.x, n1.y})
+      node_position_1 = Map.get(grid.nodes, Position.key(n1))
       |> Map.get(:neighbours)
       |> List.first
-      assert n2.x == node2.x
-      assert n2.y == node2.y
+      assert n2.position.x == node_position_1.x
+      assert n2.position.y == node_position_1.y
 
-      node1 = Map.get(grid.nodes, {n2.x, n2.y})
+      node_position_2 = Map.get(grid.nodes, Position.key(n2))
       |> Map.get(:neighbours)
       |> List.first
-      assert n1.x == node1.x
-      assert n1.y == node1.y
+      assert n1.position.x == node_position_2.x
+      assert n1.position.y == node_position_2.y
     end
 
     test "unlink/3" do
@@ -53,10 +55,10 @@ defmodule Mario.GridTest do
       |> Grid.unlink(n1, n2)
       assert Enum.count(grid.nodes) == node_count
 
-      assert 0 == Map.get(grid.nodes, {n1.x, n1.y})
+      assert 0 == Map.get(grid.nodes, Position.key(n1))
       |> Map.get(:neighbours)
       |> Enum.count
-      assert 0 == Map.get(grid.nodes, {n2.x, n2.y})
+      assert 0 == Map.get(grid.nodes, Position.key(n2))
       |> Map.get(:neighbours)
       |> Enum.count
     end
@@ -67,12 +69,13 @@ defmodule Mario.GridTest do
       grid_ = grid_fixture(w, h)
       assert grid_.width == w
       assert grid_.height == h
-      Enum.each(grid_.nodes, fn {_k, x} ->
+      Enum.each(grid_.nodes, fn {_k, node} ->
+        p = node.position
         cond do
-          is_nil x.north -> assert x.x == 0
-          is_nil x.east -> assert x.y == w-1
-          is_nil x.south -> assert x.x == h-1
-          is_nil x.west -> assert x.y == 0
+          is_nil node.north -> assert p.x == 0
+          is_nil node.east -> assert p.y == w-1
+          is_nil node.south -> assert p.x == h-1
+          is_nil node.west -> assert p.y == 0
           true -> true
         end
       end)

@@ -1,6 +1,7 @@
 defmodule Mario.Grid.Edges do
   alias Mario.Grid
   alias Mario.Grid.Node
+  alias Mario.Grid.Position
 
   def create(%Grid{} = grid) do
     grid
@@ -8,6 +9,8 @@ defmodule Mario.Grid.Edges do
       nodes
       |> Enum.sort
       |> Enum.reduce(%{nodes: %{}, walk: []}, fn {{_x,_y}, node}, acc ->
+        # Walk until the wall
+        #   or randomly link a southern or eastern wall
         if should_close(node) do
           closed_node
             = acc.walk ++ [node]
@@ -16,7 +19,9 @@ defmodule Mario.Grid.Edges do
 
           %{nodes: put_node(acc.nodes, closed_node), walk: []}
         else
-          %{nodes: put_node(acc.nodes, node),
+          # Continue the walk instead
+          # %{nodes: put_node(acc.nodes, node),
+          %{nodes: put_node(acc.nodes, Node.link(node, node.east)),
             walk: List.insert_at(acc.walk, -1, node)}
         end
       end)
@@ -34,9 +39,11 @@ defmodule Mario.Grid.Edges do
     Node.link(node, south)
   end
 
-  defp close_node(%Node{east: east} = node) do
-    Node.link(node, east)
-  end
+  defp close_node(node), do: node
 
-  defp put_node(nodes, %Node{x: x, y: y} = node), do: Map.put(nodes, {x, y}, node)
+  # defp close_node(%Node{east: east} = node) do
+  #   Node.link(node, east)
+  # end
+
+  defp put_node(nodes, %Node{position: p} = node), do: Map.put(nodes, Position.key(p), node)
 end

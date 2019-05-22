@@ -1,6 +1,7 @@
 defmodule Mario.Grid do
   alias Mario.Grid.Node
   alias Mario.Grid.Edges
+  alias Mario.Grid.Position
 
   defstruct [
     width:        0,
@@ -27,18 +28,20 @@ defmodule Mario.Grid do
       = 1..(width * height)
     |> Enum.to_list
     |> Enum.reduce(%{x: 0, y: 0, nodes: %{}}, fn _a, acc ->
+      node = Node.init(acc.x, acc.y)
+      # Work as 2 dimension array
+      # Go to x+1 every y-1 steps
       if acc.y < width-1 do
-        node = Node.init(acc.x, acc.y)
         acc
-        |> Map.update!(:nodes, &(Map.put(&1, {node.x, node.y}, node)))
+        |> Map.update!(:nodes, &(Map.put(&1, Position.key(node), node)))
         |> Map.update!(:y, &(&1 + 1))
       else
-        node = Node.init(acc.x, acc.y)
         acc
-        |> Map.update!(:nodes, &(Map.put(&1, {node.x, node.y}, node)))
+        |> Map.update!(:nodes, &(Map.put(&1, Position.key(node), node)))
         |> Map.update!(:x, &(&1 + 1))
         |> Map.update!(:y, fn _x -> 0 end)
       end
+
     end)
     |> Map.get(:nodes)
     |> create_links
@@ -57,24 +60,24 @@ defmodule Mario.Grid do
   @doc """
   Creates a bi-directional link between two nodes
   """
-  def link(grid, n1, n2) do
+  def link(grid, %Node{} = left, %Node{} = right) do
     grid
     |> Map.update!(:nodes, fn x ->
       x
-      |> Map.update!({n1.x, n1.y}, &(Node.link(&1, n2)))
-      |> Map.update!({n2.x, n2.y}, &(Node.link(&1, n1)))
+      |> Map.update!(Position.key(left), &(Node.link(&1, right)))
+      |> Map.update!(Position.key(right), &(Node.link(&1, left)))
     end)
   end
 
   @doc """
-  Removes a link between two nodes
+  Removes a bi-directional link between two nodes
   """
-  def unlink(grid, n1, n2) do
+  def unlink(grid, %Node{} = left, %Node{} = right) do
     grid
     |> Map.update!(:nodes, fn x ->
       x
-      |> Map.update!({n1.x, n1.y}, &(Node.unlink(&1, n2)))
-      |> Map.update!({n2.x, n2.y}, &(Node.unlink(&1, n1)))
+      |> Map.update!(Position.key(left), &(Node.unlink(&1, right)))
+      |> Map.update!(Position.key(right), &(Node.unlink(&1, left)))
     end)
   end
 
